@@ -25,9 +25,10 @@ class TaskResource extends JsonResource
             'image_path'=> $this->image_path,
             'created_at'=> (new Carbon($this->created_at))->format('Y-m-d'),
             'updated_at'=> (new Carbon($this->updated_at))->format('Y-m-d'),
-            'created_by'=> new UserResource($this->created_by),
-            'updated_by'=> new UserResource($this->update_by),
-            'assigned_user_id'=> new UserResource($this->assigned_user_id),
+            'project'=> new ProjectResource($this->project),
+            'created_by'=> new UserResource($this->createdBy),
+            'updated_by'=> new UserResource($this->updateBy),
+            'assigned_user_id'=> $this->assignedUser ? new UserResource($this->assignedUser) : null,
         ];
     }
 }
