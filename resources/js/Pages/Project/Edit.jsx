@@ -22,6 +22,7 @@ export default function Create({ auth, project }) {
     post(route("project.update", project.id));
   };
 
+
   return (
     <AuthenticatedLayout
       user={auth.user}
