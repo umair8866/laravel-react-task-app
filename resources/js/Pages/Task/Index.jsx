@@ -6,7 +6,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router } from '@inertiajs/react';
 import TableHeading from "@/Components/TableHeading";
 
-export default function Index({auth, tasks, queryParams=null}){
+export default function Index({auth, tasks, queryParams=null,success}){
 
     queryParams = queryParams || {}
     const searchFieldChanged = (name ,value) => {
@@ -41,19 +41,34 @@ export default function Index({auth, tasks, queryParams=null}){
 
     }
 
+    const deleteTask = (task) =>{
+      if (!window.confirm("Are you sure you want to delete the project?")) {
+        return;
+      }
+      router.delete(route('task.destroy',task.id));
+    }
+
     return (
         <AuthenticatedLayout
                 user={auth.user}
                 header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Tasks
-                </h2>
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                        Tasks
+                    </h2>
+                    <Link href={route('task.create')} className="bg-emerald-500 py-1 px-3 text-white rounded shadow transition-all">Add New</Link>
+                  </div>
             }
         >
             <Head title="Tasks" />
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                  {success && (
+                    <div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
+                      {success}
+                    </div>
+                  )}
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                         <div className="p-6 text-gray-900 dark:text-gray-100 overflow-x-auto">
                             <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -116,25 +131,31 @@ export default function Index({auth, tasks, queryParams=null}){
                                         <tr key={task.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                             <td className="px-3 py-2">{task.id}</td>
                                             <td className="px-3 py-2"><img src={task.image_path} width="60"/></td>
-                                            <td className="px-3 py-2">{task.project.name}</td>
+                                            <td className="px-3 py-2">
+                                               {task.project?.name ? (
+                                                <span>{task.project.name}</span>
+                                                ) : (
+                                                  <span>No project name available</span>
+                                                )}
+                                            </td>
                                             <td className="px-3 py-2">{task.name}</td>
                                             <td className="px-3 py-2">
-                                              <span className={"px-2 py-1 rounded text-white " + TASK_STATUS_CLASS_MAP[task.status] }>
+                                              <span className={"px-2 py-1 text-nowrap rounded text-white " + TASK_STATUS_CLASS_MAP[task.status] }>
                                                 {TASK_STATUS_TEXT_MAP[task.status]}
                                               </span>
                                             </td>
                                             <td className="px-3 py-2">
-                                              <span className={"px-2 py-1 rounded text-white " + TASK_PRIORITY_CLASS_MAP[task.priority] }>
+                                              <span className={"px-2 py-1 text-nowrap rounded text-white " + TASK_PRIORITY_CLASS_MAP[task.priority] }>
                                                 {TASK_PRIORITY_TEXT_MAP[task.priority]}
                                               </span>
                                             </td>
                                             <td className="px-3 py-2 text-nowrap">{task.created_at}</td>
                                             <td className="px-3 py-2 text-nowrap">{task.due_date}</td>
-                                            <td className="px-3 py-2">{task.created_by.name}</td>
-                                            <td className="px-3 py-2">
+                                            <td className="px-3 py-2">{task.createdBy.name}</td>
+                                            <td className="px-3 py-2 text-nowrap">
                                                 <Link className="font-medium text-blue-600 dark:text-blue-500 hover:underline mx-1" href={route('task.edit',task.id)}>Edit</Link>
                                                 <Link className="font-medium text-orange-600 dark:text-orage-500 hover:underline mx-1" href={route('task.show',task.id)}>View</Link>
-                                                <Link className="font-medium text-red-600 dark:text-red-500 hover:underline mx-1" href={route('task.destroy',task.id)}>Delete</Link>
+                                                <button onClick={(e) => deleteTask(task)} className="font-medium text-red-600 dark:text-red-500 hover:underline mx-1" >Delete</button>
                                             </td>
                                         </tr>
                                     ))}
